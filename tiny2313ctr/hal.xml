@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<HAL>
+	<templates>
+		<template name="digio">
+			<pin type="io" initialstate="input" initialpullup="active" />
+		</template>
+
+		<template name="diginput">
+			<pin type="input" initialpullup="active" />
+		</template>
+		
+		<template name="digswitchinput">
+			<pin type="input" initialpullup="active" />
+			<activelow />
+		</template>
+		
+		<template name="digoutput">
+			<pin type="output" initialvalue="inactive" />
+		</template>
+		
+		<template name="adcinput">
+			<pin type="input" initialpullup="inactive" />
+		</template>
+	</templates>
+
+	<portpin name="PB5" template="digoutput">
+		<description value="CLICK" />
+	</portpin>
+	<portpin name="PB4" template="digoutput">
+		<description value="LEDY" />
+	</portpin>
+	<portpin name="PB3" template="digswitchinput">
+		<description value="SWITCH" />
+	</portpin>
+
+	<portpin name="PD2" template="diginput">
+		<description value="EVENT" />
+	</portpin>
+	<portpin name="PD1" template="digoutput">
+		<description value="TX" />
+	</portpin>
+	<portpin name="PD0" template="diginput">
+		<description value="RX" />
+	</portpin>
+</HAL>

@@ -1,0 +1,6 @@
+.*.swp
+*.o
+tiny13smps/main
+tiny13smps/main.hex
+tiny2313ctr/main
+tiny2313ctr/main.hex
