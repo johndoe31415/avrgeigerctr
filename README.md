@@ -16,5 +16,44 @@ The schematic is Open Hardware and the PDF of the schematic is included. It has
 been created with Altium CircuitMaker and therefore is also available at
 [Altium Vault](https://workspace.circuitmaker.com/Projects/Details/Johannes-Bauer/Geiger-Counter).
 
+# Example output and usage
+Here's some example output on the RS232 line using 115200 Baud 8N1:
+
+```
+T=5b48 C=77 L=64ae X=f453
+T=5b92 C=78 L=6650 X=9203
+T=5bae C=79 L=7dc X=95df
+T=5bae C=7e L=8779 X=3185
+T=5baf C=85 L=38a2 X=357e
+T=5baf C=8c L=e9b2 X=9825
+T=5bb0 C=92 L=818b X=1448
+T=5bb1 C=99 L=32ec X=3aca
+T=5bb1 C=9d L=984d X=f5d5
+```
+
+The "T" part indicates the timestamp. Time is counted in full overflows of the
+16-bit TIMER1 at full frequency of 18.432 MHz. So the last line shows 0x5bb1
+ticks which corresponds to about 83.5 seconds. In that time, C=9d, i.e., 157
+counts have been registered (~1.8 cts/sec background). The L and X values
+indicate the last TCNT1 value (free-running at maximum clock rate) at the time
+of the event as well as the cumulative XORed TCNT1 value over all events.  Both
+can be used to seed some TRNG source as they should be truly random. When you
+hit the "?" key, you will see a help page that should be fairly self-explanatory:
+
+```
+Help:
+   ?        This help page.
+   1 to 9   Change output rate to 5000, 2500, 1000, 500, 250, 100, 50, 25 or 0 milliseconds.
+   s        Turn clicker sound off
+   S        Turn clicker sound on
+Message format:
+   T=time C=counts L=last_tcnt1 X=xored_tcnt1
+   Time in multiples of 4/1125th of a second (approx. 3.56 ms).
+   last_tcnt1 and xored_tcnt1 give the last TCNT1 value at an event
+   and the cumulative XORed TCNT1 value of all events so far. Regardless
+   of timer setting, lines are only printed when event count has changed.
+
+```
+
 # License
 GNU General Public License v3.
