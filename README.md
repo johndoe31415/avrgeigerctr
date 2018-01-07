@@ -11,6 +11,8 @@ It uses a Tiny13 as a SMPS controller (actually a dead simple one) with a fixed
 frequency of around 5 kHz. The Tiny2313 does the counting and conversion to
 RS232 (actually USB via an FTDI232).
 
+Pictures [can be seen here](https://johndoe31415.github.io/avrgeigerctr/).
+
 # Schematic
 The schematic is Open Hardware and the PDF of the schematic is included. It has
 been created with Altium CircuitMaker and therefore is also available at
