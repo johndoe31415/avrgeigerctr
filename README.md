@@ -16,7 +16,7 @@ Pictures [can be seen here](https://johndoe31415.github.io/avrgeigerctr/).
 # Schematic
 The schematic is Open Hardware and the PDF of the schematic is included. It has
 been created with Altium CircuitMaker and therefore is also available at
-[Altium Vault](https://workspace.circuitmaker.com/Projects/Details/Johannes-Bauer/Geiger-Counter).
+[Altium Vault](https://workspace.circuitmaker.com/Projects/Details/johndoe31415/avrgeigerctr).
 
 # Example output and usage
 Here's some example output on the RS232 line using 115200 Baud 8N1:
