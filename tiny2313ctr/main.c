@@ -39,7 +39,7 @@ struct counting_state_t {
 static struct counting_state_t state;
 static bool sound = false;
 static uint16_t msg_delay_ms = 1000;
-static uint16_t current_sleep_ms;
+static bool emit_msg_only_on_change = true;
 
 static void rs232_tx(char data) {
 	while (!(UCSRA & _BV(UDRE)));
@@ -115,6 +115,10 @@ ISR(USART_RX_vect) {
 		/* Turn sound on */
 		sound = true;
 		LEDY_SetActive();
+	} else if (rxbyte == 'a') {
+		emit_msg_only_on_change = false;
+	} else if (rxbyte == 'A') {
+		emit_msg_only_on_change = true;
 	} else if (rxbyte == '1') {
 		msg_delay_ms = 5000;
 	} else if (rxbyte == '2') {
@@ -139,14 +143,20 @@ ISR(USART_RX_vect) {
 		rs232_tx_str(PSTR("   1 to 9   Change output rate to 5000, 2500, 1000, 500, 250, 100, 50, 25 or 0 milliseconds.\r\n"));
 		rs232_tx_str(PSTR("   s        Turn clicker sound off\r\n"));
 		rs232_tx_str(PSTR("   S        Turn clicker sound on\r\n"));
+		rs232_tx_str(PSTR("   a        Do not emit messages when no change in counts occurred\r\n"));
+		rs232_tx_str(PSTR("   A        Always emit messages, even when no change in counts occurred\r\n"));
 		rs232_tx_str(PSTR("Message format:\r\n"));
 		rs232_tx_str(PSTR("   T=time C=counts L=last_tcnt1 X=xored_tcnt1\r\n"));
 		rs232_tx_str(PSTR("   Time in multiples of 4/1125th of a second (approx. 3.56 ms).\r\n"));
 		rs232_tx_str(PSTR("   last_tcnt1 and xored_tcnt1 give the last TCNT1 value at an event\r\n"));
 		rs232_tx_str(PSTR("   and the cumulative XORed TCNT1 value of all events so far. Regardless\r\n"));
 		rs232_tx_str(PSTR("   of timer setting, lines are only printed when event count has changed.\r\n"));
+		rs232_tx_str(PSTR("Current state of settings: Sound="));
+		rs232_tx_str(sound ? PSTR("on") : PSTR("off"));
+		rs232_tx_str(PSTR("  OnlyShowMsgOnChangedCounts="));
+		rs232_tx_str(emit_msg_only_on_change ? PSTR("yes") : PSTR("no"));
+		rs232_tx_str(PSTR("\r\n"));
 	}
-	current_sleep_ms = 1;
 }
 
 ISR(INT0_vect) {
@@ -207,39 +217,48 @@ int main(void) {
 	init_extirq();
 	sei();
 
-	uint32_t last_count = 0;
+	uint32_t last_shown_count = 0;
+	uint16_t millis_since_last_message = 0;
 	uint16_t switch_debounce_cnt = 0;
 	bool switch_armed = true;
 	while (true) {
+		/* Make an atomic copy of the state so we have guaranteed consistent
+		 * values */
 		struct counting_state_t state_copy;
-		do {
-			cli();
-			state_copy = state;
-			sei();
-		} while (state_copy.total_cts == last_count);
-		last_count = state_copy.total_cts;
+		cli();
+		state_copy = state;
+		sei();
 
-		show_status(&state_copy);
-		current_sleep_ms = msg_delay_ms;
-		while (current_sleep_ms) {
-			current_sleep_ms--;
-			_delay_ms(1);
-			if (SWITCH_IsActive()) {
-				if (switch_armed) {
-					switch_debounce_cnt++;
-					if (switch_debounce_cnt == 100) {
-						sound = !sound;
-						LEDY_SetConditional(sound);
-						switch_armed = false;
-					}
-				}
-			} else {
-				if (switch_debounce_cnt) {
-					switch_debounce_cnt--;
-				} else {
-					switch_armed = true;
+		/* Did anything change? */
+		bool change_in_counting_state = state_copy.total_cts != last_shown_count;
+		if ((millis_since_last_message >= msg_delay_ms) && (change_in_counting_state || !emit_msg_only_on_change)) {
+			millis_since_last_message = 0;
+			last_shown_count = state_copy.total_cts;
+			show_status(&state_copy);
+		}
+
+		/* Debounce input switch */
+		if (SWITCH_IsActive()) {
+			if (switch_armed) {
+				switch_debounce_cnt++;
+				if (switch_debounce_cnt == 100) {
+					sound = !sound;
+					LEDY_SetConditional(sound);
+					switch_armed = false;
 				}
 			}
+		} else {
+			if (switch_debounce_cnt) {
+				switch_debounce_cnt--;
+			} else {
+				switch_armed = true;
+			}
+		}
+
+		/* Delay one millisecond and count always up */
+		_delay_ms(1);
+		if (millis_since_last_message != 0xffff) {
+			millis_since_last_message++;
 		}
 	}
 
