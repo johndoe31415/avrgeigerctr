@@ -63,9 +63,9 @@ ATtiny13: 9.6 MHz internal RC oscillator
 -U lfuse:w:0x7a:m -U hfuse:w:0xff:m
 ```
 
-ATtiny2313: 18.432 MHz external crystal, 14 CK + 4.1ms startup
+ATtiny2313: 18.432 MHz external crystal, 14 CK + 65ms startup
 ```
--U lfuse:w:0xef:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
+-U lfuse:w:0xff:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
 ```
 
 # License
