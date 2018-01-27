@@ -1,11 +1,13 @@
 # avrgeigerctr
-This is an AVR-based Geiger Counter that works with the Russian-build very nice
-SI-8B pancake probe. I had originally built that circuit in 2013 and also [made
-a YouTube video about it](https://www.youtube.com/watch?v=VTvxW6B8epQ), but
-revisited the whole thing in 2018 and re-built the entire circuit (albeit
-re-using some of the components). Notably the tube current is now not exceeding the specifications
-anymore (in my early design I used a 10 MOhm resistor, now it's 30 MOhms) and replaced the
-feedback by a LM311 comparator. The updated schematic is also included.
+This is an AVR-based Geiger Counter with USB counting output that works with
+the Russian-build very nice SI-8B pancake probe. I had originally built that
+circuit in 2013 and also [made a YouTube video about
+it](https://www.youtube.com/watch?v=VTvxW6B8epQ), but revisited the whole thing
+in 2018 and re-built the entire circuit (albeit re-using some of the
+components). Notably the tube current is now not exceeding the specifications
+anymore (in my early design I used a 10 MOhm resistor, now it's 30 MOhms) and
+replaced the feedback by a LM311 comparator. The updated schematic is also
+included.
 
 It uses a Tiny13 as a SMPS controller (actually a dead simple one) with a fixed
 frequency of around 5 kHz. The Tiny2313 does the counting and conversion to
@@ -48,14 +50,21 @@ Help:
    1 to 9   Change output rate to 5000, 2500, 1000, 500, 250, 100, 50, 25 or 0 milliseconds.
    s        Turn clicker sound off
    S        Turn clicker sound on
+   a        Do not emit messages when no change in counts occurred
+   A        Always emit messages, even when no change in counts occurred
 Message format:
    T=time C=counts L=last_tcnt1 X=xored_tcnt1
    Time in multiples of 4/1125th of a second (approx. 3.56 ms).
    last_tcnt1 and xored_tcnt1 give the last TCNT1 value at an event
    and the cumulative XORed TCNT1 value of all events so far. Regardless
    of timer setting, lines are only printed when event count has changed.
-
+Current state of settings: Sound=off OnlyShowMsgOnChangedCounts=yes
 ```
+
+With the a or A keys it can be chosen whether or not messages should be emitted
+regardless if counts have changed or not. This can be used to disciminate cases
+where the counter itself has a malfunction or it's just the tube not emitting
+any more counts.
 
 # AVR fuse configuration
 ATtiny13: 9.6 MHz internal RC oscillator
